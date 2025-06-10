@@ -1,0 +1,39 @@
+<?xml version='1.0'?>
+<DevRes>
+	<Images>
+		<Res id="export" path="Work/Common/Icons/export48.png"/>
+	</Images>
+	<Texts>
+		<!--- all from res folder -->
+		<Res id="mainV" path=":shaders/Main.vert"/>
+		<Res id="mainF" path=":shaders/Main.frag"/>
+		<Res id="shadowV" path=":shaders/Shadow.vert"/>
+		<Res id="shadowF" path=":shaders/Shadow.frag"/>		
+		<Res id="depthMapV" path=":shaders/DepthMap.vert"/>
+		<Res id="depthMapF" path=":shaders/DepthMap.frag"/>		
+		<Res id="mainNoTexV" path=":shaders/MainNoTex.vert"/>
+		<Res id="mainNoTexF" path=":shaders/MainNoTex.frag"/>
+		<Res id="simpleV" path=":shaders/SimpleColor.vert"/>
+        <Res id="simpleF" path=":shaders/SimpleColor.frag"/>
+		<Res id="DepthPassV" path=":shaders/DepthPass.vert"/>
+		<Res id="DepthPassF" path=":shaders/DepthPass.frag"/>
+		<Res id="MainPass1V" path=":shaders/MainPassV1.vert"/>
+		<Res id="MainPass1F" path=":shaders/MainPassV1.frag"/>
+	</Texts>
+	<Textures>
+		<Res id="numbers" path="Work/Common/Images/diceNumbers_Atlas.jpg" mirrorV = "true"/>
+		<Res id="dots" path="Work/Common/Images/dice_Atlas.jpg" mirrorV = "true"/>	
+		<Res id="wood_floor" path="Work/Common/Images/wood_floor_color.jpg" mirrorV = "true"/>
+		<Res id="house" path="Work/Common/Images/house.jpg" mirrorV = "true"/>
+		<Res id="tower" path="Work/Common/Images/Wood_Tower_Col.jpg" mirrorV = "true"/>
+		<Res id="formula" path="Work/Common/Images/Formula_dif.png" mirrorV = "true"/>
+		<Res id="cone" path="Work/Common/Images/cone.jpg" mirrorV = "true"/>
+
+	</Textures>
+	<FileNames>
+		<Res id="houseObj" path="Work/Common/Models/house.obj"/>
+		<Res id="towerObj" path="Work/Common/Models/tower.obj"/>
+		<Res id="formulaObj" path="Work/Common/Models/Formula.obj"/>
+		<Res id="coneObj" path="Work/Common/Models/cone.obj"/>
+	</FileNames>
+</DevRes>
