@@ -102,6 +102,7 @@ private:
         const glm::vec4 bojaGlave(1.0f, 0.8f, 0.6f, 1.0f);   // Boja kože
         const glm::vec4 bojaUdova(1.0f, 0.0f, 0.0f, 1.0f);   // Crvena
         const glm::vec4 bojaZglobova(1.0f, 1.0f, 0.0f, 1.0f); // Žuta
+        const glm::vec4 Crna(0.0f, 0.0f, 0.0f, 1.0f); // Žuta
 
         ShapeData valjakData = ShapeGenerator::createCylinder(1.0f, 0.5f, 16);
         ShapeData kockaData = ShapeGenerator::createCube();
@@ -110,22 +111,22 @@ private:
 
         createModelComponent(valjakData, bojaTrupa, _trup);
         createModelComponent(loptaData, bojaGlave, _glava);
-        createModelComponent(kockaData, bojaUdova, _lijevaNogaGore);
-        createModelComponent(kockaData, bojaUdova, _lijevaNogaDole);
-        createModelComponent(kockaData, bojaUdova, _desnaNogaGore);
-        createModelComponent(kockaData, bojaUdova, _desnaNogaDole);
-        createModelComponent(kockaData, bojaUdova, _lijevaRukaGore);
-        createModelComponent(kockaData, bojaUdova, _lijevaRukaDole);
-        createModelComponent(kockaData, bojaUdova, _desnaRukaGore);
-        createModelComponent(kockaData, bojaUdova, _desnaRukaDole);
-        createModelComponent(sferaData, bojaZglobova, _lijevoRame);
-        createModelComponent(sferaData, bojaZglobova, _desnoRame);
-        createModelComponent(sferaData, bojaZglobova, _lijeviLakat);
-        createModelComponent(sferaData, bojaZglobova, _desniLakat);
-        createModelComponent(sferaData, bojaZglobova, _lijeviKuk);
-        createModelComponent(sferaData, bojaZglobova, _desniKuk);
-        createModelComponent(sferaData, bojaZglobova, _lijevoKoljeno);
-        createModelComponent(sferaData, bojaZglobova, _desnoKoljeno);
+        createModelComponent(kockaData, Crna, _lijevaNogaGore);
+        createModelComponent(kockaData, Crna, _lijevaNogaDole);
+        createModelComponent(kockaData, Crna, _desnaNogaGore);
+        createModelComponent(kockaData, Crna, _desnaNogaDole);
+        createModelComponent(kockaData, bojaTrupa, _lijevaRukaGore);
+        createModelComponent(kockaData, bojaGlave, _lijevaRukaDole);
+        createModelComponent(kockaData, bojaTrupa, _desnaRukaGore);
+        createModelComponent(kockaData, bojaGlave, _desnaRukaDole);
+        createModelComponent(sferaData, bojaTrupa, _lijevoRame);
+        createModelComponent(sferaData, bojaTrupa, _desnoRame);
+        createModelComponent(sferaData, bojaGlave, _lijeviLakat);
+        createModelComponent(sferaData, bojaGlave, _desniLakat);
+        createModelComponent(sferaData, Crna, _lijeviKuk);
+        createModelComponent(sferaData, Crna, _desniKuk);
+        createModelComponent(sferaData, Crna, _lijevoKoljeno);
+        createModelComponent(sferaData, Crna, _desnoKoljeno);
 
         _matrixID = glGetUniformLocation(_mainPassProgramID, "MVP");
         _objectColorID = glGetUniformLocation(_mainPassProgramID, "objectColor");
@@ -170,6 +171,7 @@ protected:
         _humanoidPozicijaX += moveStep * -glm::cos(_humanoidUgaoRotacije);
         _humanoidPozicijaZ += moveStep * glm::sin(_humanoidUgaoRotacije);
 
+       
         return true;
     }
 
@@ -178,101 +180,94 @@ protected:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(_mainPassProgramID);
 
-        // Fiksna kamera za testiranje
+        // Kamera i osnovne transformacije
         glm::vec3 cameraPosition = glm::vec3(0, 5, 15);
         glm::vec3 cameraTarget = glm::vec3(0, 1.5, 0);
         _viewMatrix = glm::lookAt(cameraPosition, cameraTarget, glm::vec3(0, 1, 0));
 
         // Animacijski uglovi
         float animUgao = _ugaoHoda;
-        float ugaoHoda = sin(animUgao) * 0.8f;
-        float ugaoKoljena = glm::max(0.0f, -sin(animUgao) * 1.5f);
-        float ugaoKoljenaSuprotno = glm::max(0.0f, sin(animUgao) * 1.5f);
+        float ugaoHoda = sin(animUgao) * 0.5f;
+        float ugaoKoljena = glm::max(0.0f, -sin(animUgao) * 0.8f);
+        float ugaoKoljenaSuprotno = glm::max(0.0f, sin(animUgao) * 0.8f);
 
         // Glavna matrica za poziciju i rotaciju cijelog humanoida
         glm::mat4 humanoidMatrix = glm::mat4(1.0f);
         humanoidMatrix = glm::translate(humanoidMatrix, glm::vec3(_humanoidPozicijaX, 0.0f, _humanoidPozicijaZ));
         humanoidMatrix = glm::rotate(humanoidMatrix, _humanoidUgaoRotacije - glm::pi<float>() / 2.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        // --- HIJERARHIJSKO CRTANJE ---
-
-        // 1. TRUP
+        // Osnova za sve dijelove tijela
         glm::mat4 pozicijaTrupaMatrix = glm::translate(humanoidMatrix, glm::vec3(0.0f, 1.5f, 0.0f));
-        glm::mat4 trupZaCrtanjeMatrix = glm::scale(pozicijaTrupaMatrix, glm::vec3(1.0f, 1.7f, 0.75f));
-        drawComponent(_trup, trupZaCrtanjeMatrix);
 
-        // 2. GLAVA
-        glm::mat4 glavaMatrix = glm::translate(pozicijaTrupaMatrix, glm::vec3(0.0f, 1.1f, 0.0f));
-        glavaMatrix = glm::scale(glavaMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
-        drawComponent(_glava, glavaMatrix);
+        // Crtanje trupa i glave
+        drawComponent(_trup, glm::scale(pozicijaTrupaMatrix, glm::vec3(1.0f, 1.7f, 0.75f)));
+        drawComponent(_glava, glm::scale(glm::translate(pozicijaTrupaMatrix, glm::vec3(0.0f, 1.1f, 0.0f)), glm::vec3(0.5f)));
 
-        // ------------------- LIJEVA NOGA -------------------
-        glm::mat4 pozicijaKukaLijevo = glm::translate(pozicijaTrupaMatrix, glm::vec3(-0.35f, -0.85f, 0.0f));
-        glm::mat4 rotacijaKukaLijevo = glm::rotate(pozicijaKukaLijevo, ugaoHoda, glm::vec3(1.0f, 0.0f, 0.0f));
-        drawComponent(_lijeviKuk, glm::scale(rotacijaKukaLijevo, glm::vec3(0.15f)));
-
-        glm::mat4 lijevaNadkoljenica_neskalirana = glm::translate(rotacijaKukaLijevo, glm::vec3(0.0f, -0.6f, 0.0f));
-        glm::mat4 lijevaNadkoljenica_skalirana = glm::scale(lijevaNadkoljenica_neskalirana, glm::vec3(0.25f, 0.6f, 0.3f));
-        drawComponent(_lijevaNogaGore, lijevaNadkoljenica_skalirana);
-
-        glm::mat4 pozicijaKoljenaLijevo = glm::translate(lijevaNadkoljenica_neskalirana, glm::vec3(0.0f, -1.2f, 0.0f)); // Pozicija koljena zavisi od neskalirane nadkoljenice
-        glm::mat4 rotacijaKoljenaLijevo = glm::rotate(pozicijaKoljenaLijevo, ugaoKoljena, glm::vec3(1.0f, 0.0f, 0.0f));
-        drawComponent(_lijevoKoljeno, glm::scale(rotacijaKoljenaLijevo, glm::vec3(0.12f)));
-
-        glm::mat4 lijevaPotkoljenica = glm::translate(rotacijaKoljenaLijevo, glm::vec3(0.0f, -0.6f, 0.0f));
-        lijevaPotkoljenica = glm::scale(lijevaPotkoljenica, glm::vec3(0.22f, 0.6f, 0.27f));
-        drawComponent(_lijevaNogaDole, lijevaPotkoljenica);
-
-        // ------------------- DESNA NOGA -------------------
-        glm::mat4 pozicijaKukaDesno = glm::translate(pozicijaTrupaMatrix, glm::vec3(0.35f, -0.85f, 0.0f));
-        glm::mat4 rotacijaKukaDesno = glm::rotate(pozicijaKukaDesno, -ugaoHoda, glm::vec3(1.0f, 0.0f, 0.0f));
-        drawComponent(_desniKuk, glm::scale(rotacijaKukaDesno, glm::vec3(0.15f)));
-
-        glm::mat4 desnaNadkoljenica_neskalirana = glm::translate(rotacijaKukaDesno, glm::vec3(0.0f, -0.6f, 0.0f));
-        glm::mat4 desnaNadkoljenica_skalirana = glm::scale(desnaNadkoljenica_neskalirana, glm::vec3(0.25f, 0.6f, 0.3f));
-        drawComponent(_desnaNogaGore, desnaNadkoljenica_skalirana);
-
-        glm::mat4 pozicijaKoljenaDesno = glm::translate(desnaNadkoljenica_neskalirana, glm::vec3(0.0f, -1.2f, 0.0f));
-        glm::mat4 rotacijaKoljenaDesno = glm::rotate(pozicijaKoljenaDesno, ugaoKoljenaSuprotno, glm::vec3(1.0f, 0.0f, 0.0f));
-        drawComponent(_desnoKoljeno, glm::scale(rotacijaKoljenaDesno, glm::vec3(0.12f)));
-
-        glm::mat4 desnaPotkoljenica = glm::translate(rotacijaKoljenaDesno, glm::vec3(0.0f, -0.6f, 0.0f));
-        desnaPotkoljenica = glm::scale(desnaPotkoljenica, glm::vec3(0.22f, 0.6f, 0.27f));
-        drawComponent(_desnaNogaDole, desnaPotkoljenica);
+        // ---- DEFINICIJE PROPORCIJA ----
+        float duzinaNadlaktice = 0.7f;
+        float duzinaPodlaktice = 0.7f;
+        float duzinaNadkoljenice = 0.9f;
+        float duzinaPotkoljenice = 0.8f;
 
         // ------------------- LIJEVA RUKA -------------------
-        glm::mat4 pozicijaRamenaLijevo = glm::translate(pozicijaTrupaMatrix, glm::vec3(-0.65f, 0.7f, 0.0f));
-        glm::mat4 rotacijaRamenaLijevo = glm::rotate(pozicijaRamenaLijevo, -ugaoHoda, glm::vec3(1.0f, 0.0f, 0.0f));
-        drawComponent(_lijevoRame, glm::scale(rotacijaRamenaLijevo, glm::vec3(0.18f)));
+        glm::mat4 lijevoRameMatrix = glm::translate(pozicijaTrupaMatrix, glm::vec3(0.65f, 0.7f, 0.0f));
+        lijevoRameMatrix = glm::rotate(lijevoRameMatrix, ugaoHoda, glm::vec3(1.0f, 0.0f, 0.0f));
+        drawComponent(_lijevoRame, glm::scale(lijevoRameMatrix, glm::vec3(0.18f)));
 
-        glm::mat4 lijevaNadlaktica_neskalirana = glm::translate(rotacijaRamenaLijevo, glm::vec3(0.0f, -0.5f, 0.0f));
-        glm::mat4 lijevaNadlaktica_skalirana = glm::scale(lijevaNadlaktica_neskalirana, glm::vec3(0.2f, 0.5f, 0.25f));
-        drawComponent(_lijevaRukaGore, lijevaNadlaktica_skalirana);
+        glm::mat4 lijevaNadlakticaMatrix = glm::translate(lijevoRameMatrix, glm::vec3(0.0f, -duzinaNadlaktice / 2.0f, 0.0f));
+        drawComponent(_lijevaRukaGore, glm::scale(lijevaNadlakticaMatrix, glm::vec3(0.2f, duzinaNadlaktice, 0.25f)));
 
-        glm::mat4 pozicijaLaktaLijevo = glm::translate(lijevaNadlaktica_neskalirana, glm::vec3(0.0f, -1.0f, 0.0f));
-        glm::mat4 rotacijaLaktaLijevo = glm::rotate(pozicijaLaktaLijevo, ugaoKoljenaSuprotno, glm::vec3(1.0f, 0.0f, 0.0f));
-        drawComponent(_lijeviLakat, glm::scale(rotacijaLaktaLijevo, glm::vec3(0.14f)));
+        glm::mat4 lijeviLakatMatrix = glm::translate(lijevoRameMatrix, glm::vec3(0.0f, -duzinaNadlaktice, 0.0f));
+        lijeviLakatMatrix = glm::rotate(lijeviLakatMatrix, -ugaoKoljena, glm::vec3(1.0f, 0.0f, 0.0f));
+        drawComponent(_lijeviLakat, glm::scale(lijeviLakatMatrix, glm::vec3(0.14f)));
 
-        glm::mat4 lijevaPodlaktica = glm::translate(rotacijaLaktaLijevo, glm::vec3(0.0f, -0.5f, 0.0f));
-        lijevaPodlaktica = glm::scale(lijevaPodlaktica, glm::vec3(0.18f, 0.5f, 0.22f));
-        drawComponent(_lijevaRukaDole, lijevaPodlaktica);
+        glm::mat4 lijevaPodlakticaMatrix = glm::translate(lijeviLakatMatrix, glm::vec3(0.0f, -duzinaPodlaktice / 2.0f, 0.0f));
+        drawComponent(_lijevaRukaDole, glm::scale(lijevaPodlakticaMatrix, glm::vec3(0.18f, duzinaPodlaktice, 0.22f)));
 
         // ------------------- DESNA RUKA -------------------
-        glm::mat4 pozicijaRamenaDesno = glm::translate(pozicijaTrupaMatrix, glm::vec3(0.65f, 0.7f, 0.0f));
-        glm::mat4 rotacijaRamenaDesno = glm::rotate(pozicijaRamenaDesno, ugaoHoda, glm::vec3(1.0f, 0.0f, 0.0f));
-        drawComponent(_desnoRame, glm::scale(rotacijaRamenaDesno, glm::vec3(0.18f)));
+        glm::mat4 desnoRameMatrix = glm::translate(pozicijaTrupaMatrix, glm::vec3(-0.65f, 0.7f, 0.0f));
+        desnoRameMatrix = glm::rotate(desnoRameMatrix, -ugaoHoda, glm::vec3(1.0f, 0.0f, 0.0f));
+        drawComponent(_desnoRame, glm::scale(desnoRameMatrix, glm::vec3(0.18f)));
 
-        glm::mat4 desnaNadlaktica_neskalirana = glm::translate(rotacijaRamenaDesno, glm::vec3(0.0f, -0.5f, 0.0f));
-        glm::mat4 desnaNadlaktica_skalirana = glm::scale(desnaNadlaktica_neskalirana, glm::vec3(0.2f, 0.5f, 0.25f));
-        drawComponent(_desnaRukaGore, desnaNadlaktica_skalirana);
+        glm::mat4 desnaNadlakticaMatrix = glm::translate(desnoRameMatrix, glm::vec3(0.0f, -duzinaNadlaktice / 2.0f, 0.0f));
+        drawComponent(_desnaRukaGore, glm::scale(desnaNadlakticaMatrix, glm::vec3(0.2f, duzinaNadlaktice, 0.25f)));
 
-        glm::mat4 pozicijaLaktaDesno = glm::translate(desnaNadlaktica_neskalirana, glm::vec3(0.0f, -1.0f, 0.0f));
-        glm::mat4 rotacijaLaktaDesno = glm::rotate(pozicijaLaktaDesno, ugaoKoljena, glm::vec3(1.0f, 0.0f, 0.0f));
-        drawComponent(_desniLakat, glm::scale(rotacijaLaktaDesno, glm::vec3(0.14f)));
+        glm::mat4 desniLakatMatrix = glm::translate(desnoRameMatrix, glm::vec3(0.0f, -duzinaNadlaktice, 0.0f));
+        desniLakatMatrix = glm::rotate(desniLakatMatrix, -ugaoKoljenaSuprotno, glm::vec3(1.0f, 0.0f, 0.0f));
+        drawComponent(_desniLakat, glm::scale(desniLakatMatrix, glm::vec3(0.14f)));
 
-        glm::mat4 desnaPodlaktica = glm::translate(rotacijaLaktaDesno, glm::vec3(0.0f, -0.5f, 0.0f));
-        desnaPodlaktica = glm::scale(desnaPodlaktica, glm::vec3(0.18f, 0.5f, 0.22f));
-        drawComponent(_desnaRukaDole, desnaPodlaktica);
+        glm::mat4 desnaPodlakticaMatrix = glm::translate(desniLakatMatrix, glm::vec3(0.0f, -duzinaPodlaktice / 2.0f, 0.0f));
+        drawComponent(_desnaRukaDole, glm::scale(desnaPodlakticaMatrix, glm::vec3(0.18f, duzinaPodlaktice, 0.22f)));
+
+        // ------------------- LIJEVA NOGA -------------------
+        glm::mat4 lijeviKukMatrix = glm::translate(pozicijaTrupaMatrix, glm::vec3(-0.35f, -0.85f, 0.0f));
+        lijeviKukMatrix = glm::rotate(lijeviKukMatrix, ugaoHoda, glm::vec3(1.0f, 0.0f, 0.0f));
+        drawComponent(_lijeviKuk, glm::scale(lijeviKukMatrix, glm::vec3(0.20f)));
+
+        glm::mat4 lijevaNadkoljenicaMatrix = glm::translate(lijeviKukMatrix, glm::vec3(0.0f, -duzinaNadkoljenice / 2.0f, 0.0f));
+        drawComponent(_lijevaNogaGore, glm::scale(lijevaNadkoljenicaMatrix, glm::vec3(0.3f, duzinaNadkoljenice, 0.35f)));
+
+        glm::mat4 lijevoKoljenoMatrix = glm::translate(lijeviKukMatrix, glm::vec3(0.0f, -duzinaNadkoljenice, 0.0f));
+        lijevoKoljenoMatrix = glm::rotate(lijevoKoljenoMatrix, ugaoKoljena, glm::vec3(1.0f, 0.0f, 0.0f));
+        drawComponent(_lijevoKoljeno, glm::scale(lijevoKoljenoMatrix, glm::vec3(0.16f)));
+
+        glm::mat4 lijevaPotkoljenicaMatrix = glm::translate(lijevoKoljenoMatrix, glm::vec3(0.0f, -duzinaPotkoljenice / 2.0f, 0.0f));
+        drawComponent(_lijevaNogaDole, glm::scale(lijevaPotkoljenicaMatrix, glm::vec3(0.25f, duzinaPotkoljenice, 0.3f)));
+
+        // ------------------- DESNA NOGA -------------------
+        glm::mat4 desniKukMatrix = glm::translate(pozicijaTrupaMatrix, glm::vec3(0.35f, -0.85f, 0.0f));
+        desniKukMatrix = glm::rotate(desniKukMatrix, -ugaoHoda, glm::vec3(1.0f, 0.0f, 0.0f));
+        drawComponent(_desniKuk, glm::scale(desniKukMatrix, glm::vec3(0.20f)));
+
+        glm::mat4 desnaNadkoljenicaMatrix = glm::translate(desniKukMatrix, glm::vec3(0.0f, -duzinaNadkoljenice / 2.0f, 0.0f));
+        drawComponent(_desnaNogaGore, glm::scale(desnaNadkoljenicaMatrix, glm::vec3(0.3f, duzinaNadkoljenice, 0.35f)));
+
+        glm::mat4 desnoKoljenoMatrix = glm::translate(desniKukMatrix, glm::vec3(0.0f, -duzinaNadkoljenice, 0.0f));
+        desnoKoljenoMatrix = glm::rotate(desnoKoljenoMatrix, ugaoKoljenaSuprotno, glm::vec3(1.0f, 0.0f, 0.0f));
+        drawComponent(_desnoKoljeno, glm::scale(desnoKoljenoMatrix, glm::vec3(0.16f)));
+
+        glm::mat4 desnaPotkoljenicaMatrix = glm::translate(desnoKoljenoMatrix, glm::vec3(0.0f, -duzinaPotkoljenice / 2.0f, 0.0f));
+        drawComponent(_desnaNogaDole, glm::scale(desnaPotkoljenicaMatrix, glm::vec3(0.25f, duzinaPotkoljenice, 0.3f)));
     }
 
     bool onKeyPressed(const gui::Key& key) override
